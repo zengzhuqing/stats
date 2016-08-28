@@ -67,7 +67,7 @@ def get_channel_column_infos(zk, root_path, channel):
             result = data.split(':')
             region_host = result[1]
             region_port = result[2]
-            child = Popen(['redis-cli', '-p', region_host, '-p', region_port, "info", "column"], stdout = PIPE, stderr = PIPE)
+            child = Popen(['redis-cli', '-h', region_host, '-p', region_port, "info", "column"], stdout = PIPE, stderr = PIPE)
             out, err = child.communicate()
             if child.returncode != 0:
                 logging.error("Get region channel infos error. %s", err)
@@ -75,9 +75,12 @@ def get_channel_column_infos(zk, root_path, channel):
             else:
                # parse column infos
                 info = parse_region_column_infos(out)
-                for k,v in info.iteritems():
-                    if k in column_infos:
-                        column_infos[k] += v
+                if info == None:
+                    logging.warn("Region host: %s do not support column infos", region_host)
+                else:
+                    for k,v in info.iteritems():
+                        if k in column_infos:
+                            column_infos[k] += v
                     else:
                         column_infos[k] = v
         else:
