@@ -81,8 +81,8 @@ def get_channel_column_infos(zk, root_path, channel):
                     for k,v in info.iteritems():
                         if k in column_infos:
                             column_infos[k] += v
-                    else:
-                        column_infos[k] = v
+                        else:
+                            column_infos[k] = v
         else:
             logging.error("region = %s format error")
     
