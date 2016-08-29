@@ -1,7 +1,7 @@
 from kazoo.client import KazooClient
 import logging
 import re
-from subprocess import * 
+from subprocess import *
 import json
 
 logging.basicConfig(filename = "log", level = logging.INFO)
@@ -42,15 +42,15 @@ def get_version_infos(zk_host, root_path):
                 infos = get_channel_version_infos(zk, root_path, child)
                 for k,v in infos.iteritems():
                     if k in version_infos:
-                        v.add_kutype_value(v)
+                        version_infos[k].add_kutype_value(v)
                     else:
                         version_infos[k] = v
     else:
         logging.error("zk_host = %s, root_path = %s is not exist", zk_host, root_path)
-        
+       
     zk.stop()
 
-    result = {} 
+    result = {}
     for k, v in version_infos.iteritems():
         vv  = {}
         vv['size'] = v.size
@@ -64,7 +64,7 @@ def parse_region_version_infos(info_str):
     version_infos = {}
     lines = info_str.split('\n')
     pattern = re.compile('^kutype.*$')
-    begin = False 
+    begin = False
     for line in lines:
         if not begin:
             ret = pattern.match(line)
@@ -83,7 +83,7 @@ def parse_region_version_infos(info_str):
                     ku_value = KutypeValue()
                     if len(ret[1]) <= 4 :
                         logging.error("version format error")
-                        continue 
+                        continue
                     for item in ret[1][1:-2].split('),'):
                         jdx = item.find('(')
                         kdx = item.find(',')
@@ -91,7 +91,7 @@ def parse_region_version_infos(info_str):
                         timestamp = long(item[jdx + 1:kdx])
                         size = long(item[kdx+1:])
                         ku_value.add_version(version, timestamp, size)
-                    version_infos[kutype] = ku_value 
+                    version_infos[kutype] = ku_value
 
     if begin == False:
         return None
@@ -106,7 +106,7 @@ def get_channel_version_infos(zk, root_path, channel):
     pattern = re.compile('^c[0-9]+_region[0-9]+$')
     for region in regions:
         if pattern.match(region):
-            data,stat = zk.get(channel_path + '/' + region) 
+            data,stat = zk.get(channel_path + '/' + region)
             result = data.split(':')
             region_host = result[1]
             region_port = result[2]
@@ -123,12 +123,12 @@ def get_channel_version_infos(zk, root_path, channel):
                 else:
                     for k,v in info.iteritems():
                         if k in version_infos:
-                            v.add_kutype_value(v) 
+                            version_infos[k].add_kutype_value(v)
                         else:
                             version_infos[k] = v
         else:
             logging.error("region = %s format error")
-    
+ 
     return version_infos
 
 if __name__ == '__main__':
